@@ -96,7 +96,9 @@ pipeline {
 
 								# Deploy DB components
 								kubectl apply -f database-secret.yaml
+								kubectl delete -f database-service.yaml
 								kubectl apply -f database-service.yaml
+								kubectl delete -f mariadb-deployment.yaml
 								kubectl apply -f mariadb-deployment.yaml
 
 								# Wait for DB pod to be ready
@@ -104,6 +106,7 @@ pipeline {
 
 								# Re-run initializer job
 								kubectl delete job db-initializer --ignore-not-found
+								kubectl delete -f database-initializer-rendered.yaml
 								kubectl apply -f database-initializer-rendered.yaml
 
 								# Show pod status
