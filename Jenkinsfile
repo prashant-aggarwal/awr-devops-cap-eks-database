@@ -47,7 +47,7 @@ pipeline {
 						mkdir -p $HOME/bin
 						cp ./kubectl $HOME/bin/kubectl
 					else
-						echo "kubectl is already installed: $(kubectl version --client --short)"
+						echo "kubectl is already installed: $(kubectl version --client)"
 					fi
                 '''
             }
@@ -86,14 +86,27 @@ pipeline {
 						try {
 							sh '''
 								cd deploy
+
+								# Render job file with dynamic image values
 								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
-  								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > database-initializer-rendered.yaml
+								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > database-initializer-rendered.yaml
+
+								# Configure EKS access
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
+
+								# Deploy DB components
 								kubectl apply -f database-secret.yaml
 								kubectl apply -f database-service.yaml
 								kubectl apply -f mariadb-deployment.yaml
-								kubectl delete job db-initializer
+
+								# Wait for DB pod to be ready
+								kubectl rollout status deployment mariadb
+
+								# Re-run initializer job
+								kubectl delete job db-initializer --ignore-not-found
 								kubectl apply -f database-initializer-rendered.yaml
+
+								# Show pod status
 								kubectl get pods
 							'''
 						} catch (exception) {
