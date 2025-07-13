@@ -53,7 +53,27 @@ pipeline {
             }
         }
 
-		// Stage 3 - Build and Push Docker Image to ECR
+		// Stage 3 - Install Helm
+		stage('Install Helm') {
+			steps {
+				sh '''
+					if ! command -v helm >/dev/null 2>&1; then
+						echo "Installing Helm..."
+						HELM_VERSION="v3.14.4"
+						curl -LO https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+						tar -xzf helm-${HELM_VERSION}-linux-amd64.tar.gz
+						mkdir -p $HOME/bin
+						cp linux-amd64/helm $HOME/bin/helm
+						chmod +x $HOME/bin/helm
+						echo "Helm installed at: $HOME/bin/helm"
+					else
+						echo "Helm is already installed: $(helm version)"
+					fi
+				'''
+			}
+		}
+
+		// Stage 4 - Build and Push Docker Image to ECR
 		stage('Build & Push to ECR') {
 			steps {
 				script {
@@ -77,7 +97,7 @@ pipeline {
 			}
 		}
 
-		// Stage 4 - Deploy MySQL database on EKS Cluster
+		// Stage 5 - Deploy MySQL database on EKS Cluster
         stage('Deploy Database') {
             steps {
 				script {
@@ -85,10 +105,6 @@ pipeline {
 				withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
-								cd deploy
-								curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-								chmod 700 get_helm.sh
-								./get_helm.sh
 								helm install prashant-mariadb-server oci://registry-1.docker.io/bitnamicharts/mariadb
 								kubectl get svc
 								kubectl get pods
