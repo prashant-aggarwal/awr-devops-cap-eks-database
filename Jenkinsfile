@@ -106,6 +106,7 @@ pipeline {
 						try {
 							sh '''
 								helm install prashant-mariadb-server oci://registry-1.docker.io/bitnamicharts/mariadb
+								kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 								kubectl get svc
 								kubectl get pods
 							'''
