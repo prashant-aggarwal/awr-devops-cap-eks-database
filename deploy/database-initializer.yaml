@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+ name: db-initializer
+spec:
+ template:
+   spec:
+     containers:
+     - image: ${IMAGE_NAME}:${IMAGE_TAG}
+       name: db-init-job
+       imagePullPolicy: "Always"
+       env:
+       - name: DBHOST
+         value: "prashant-mariadb-server"
+       - name: DBUSER
+         value: "root"
+       - name: DBPASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: prashant-mariadb-server
+             key: mariadb-root-password
+     restartPolicy: Never
+ backoffLimit: 4
