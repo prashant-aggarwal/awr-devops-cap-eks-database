@@ -86,11 +86,11 @@ pipeline {
 						try {
 							sh '''
 								cd deploy
-								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
-  								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > ${WEB_DEPLOY}-rendered.yaml
+								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
+  								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > database-initializer-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
-								kubectl apply -f ${WEB_DEPLOY}-rendered.yaml
-								kubectl get svc
+								kubectl apply -f database-secret.yaml
+								kubectl apply -f database-initializer-rendered.yaml
 								kubectl get pods
 							'''
 						} catch (exception) {
