@@ -86,30 +86,11 @@ pipeline {
 						try {
 							sh '''
 								cd deploy
-
-								# Render job file with dynamic image values
-								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
-								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > database-initializer-rendered.yaml
-
-								# Configure EKS access
-								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
-
-								# Deploy DB components
-								kubectl apply -f database-secret.yaml
-								kubectl delete -f database-service.yaml --ignore-not-found
-								kubectl apply -f database-service.yaml
-								kubectl delete -f mariadb-deployment.yaml --ignore-not-found
-								kubectl apply -f mariadb-deployment.yaml
-
-								# Wait for DB pod to be ready
-								kubectl rollout status deployment mariadb
-
-								# Re-run initializer job
-								kubectl delete job db-initializer --ignore-not-found
-								kubectl delete -f database-initializer-rendered.yaml --ignore-not-found
-								kubectl apply -f database-initializer-rendered.yaml
-
-								# Show pod status
+								curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+								chmod 700 get_helm.sh
+								./get_helm.sh
+								helm install prashant-mariadb-server oci://registry-1.docker.io/bitnamicharts/mariadb
+								kubectl get svc
 								kubectl get pods
 							'''
 						} catch (exception) {
