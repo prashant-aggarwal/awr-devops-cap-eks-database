@@ -91,6 +91,7 @@ pipeline {
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f database-secret.yaml
 								kubectl apply -f database-service.yaml
+								kubectl apply -f mariadb-deployment.yaml
 								kubectl delete job db-initializer
 								kubectl apply -f database-initializer-rendered.yaml
 								kubectl get pods
