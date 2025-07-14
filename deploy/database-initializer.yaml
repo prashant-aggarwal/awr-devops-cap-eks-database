@@ -11,13 +11,13 @@ spec:
        imagePullPolicy: "Always"
        env:
        - name: DBHOST
-         value: "prashant-mariadb-server"
+         value: "${DATABASE_NAME}"
        - name: DBUSER
          value: "root"
        - name: DBPASSWORD
          valueFrom:
            secretKeyRef:
-             name: prashant-mariadb-server
+             name: ${DATABASE_NAME}
              key: mariadb-root-password
      restartPolicy: Never
  backoffLimit: 4

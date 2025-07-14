@@ -105,9 +105,29 @@ pipeline {
 				withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
-								helm install prashant-mariadb-server oci://registry-1.docker.io/bitnamicharts/mariadb
-								kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-								kubectl get svc
+								if helm status "${DATABASE_NAME}" >/dev/null 2>&1; then
+									echo "Helm release '${DATABASE_NAME}' already exists. Skipping installation."
+								else
+									echo "Installing MariaDB using Helm..."
+									helm install "${DATABASE_NAME}" oci://registry-1.docker.io/bitnamicharts/mariadb
+									kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+								fi
+								
+								cd deploy
+
+								# Render job file with dynamic image values
+								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
+								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" | sed "s|\\${DATABASE_NAME}|${DATABASE_NAME}|g" > database-initializer-rendered.yaml
+
+								# Configure EKS access
+								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
+
+								# Re-run initializer job
+								kubectl delete job db-initializer --ignore-not-found
+								kubectl delete -f database-initializer-rendered.yaml --ignore-not-found
+								kubectl apply -f database-initializer-rendered.yaml
+
+								# Show pod status
 								kubectl get pods
 							'''
 						} catch (exception) {
