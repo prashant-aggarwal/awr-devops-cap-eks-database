@@ -17,7 +17,7 @@ spec:
        - name: DBPASSWORD
          valueFrom:
            secretKeyRef:
-             name: ${DATABASE_NAME}
+             name: prashant-mariadb-server
              key: mariadb-root-password
      restartPolicy: Never
  backoffLimit: 4
