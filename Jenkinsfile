@@ -105,6 +105,9 @@ pipeline {
 				withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
+								# Configure EKS access
+								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
+								
 								if helm status "${DATABASE_NAME}" >/dev/null 2>&1; then
 									echo "Helm database '${DATABASE_NAME}' already exists. Skipping installation."
 								else
@@ -119,9 +122,6 @@ pipeline {
 								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
 								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" | \
 								sed "s|\\${DATABASE_NAME}|${DATABASE_NAME}|g" > database-initializer-rendered.yaml
-
-								# Configure EKS access
-								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 
 								# Re-run initializer job
 								kubectl delete job db-initializer --ignore-not-found
