@@ -116,9 +116,9 @@ pipeline {
 								cd deploy
 
 								# Render job file with dynamic image values
-								sed "s|\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
-								sed "s|\${IMAGE_TAG}|${IMAGE_TAG}|g" | \
-								sed "s|\${DATABASE_NAME}|${DATABASE_NAME}|g" > database-initializer-rendered.yaml
+								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" database-initializer.yaml | \
+								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" | \
+								sed "s|\\${DATABASE_NAME}|${DATABASE_NAME}|g" > database-initializer-rendered.yaml
 
 								# Configure EKS access
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
