@@ -106,7 +106,7 @@ pipeline {
 						try {
 							sh '''
 								if helm status "${DATABASE_NAME}" >/dev/null 2>&1; then
-									echo "Helm release '${DATABASE_NAME}' already exists. Skipping installation."
+									echo "Helm database '${DATABASE_NAME}' already exists. Skipping installation."
 								else
 									echo "Installing MariaDB using Helm..."
 									helm install "${DATABASE_NAME}" oci://registry-1.docker.io/bitnamicharts/mariadb
