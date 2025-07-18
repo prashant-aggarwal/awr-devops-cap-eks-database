@@ -100,8 +100,28 @@ pipeline {
 									echo "Helm database '${DATABASE_NAME}' already exists. Skipping installation."
 								else
 									echo "Installing MariaDB using Helm..."
-									helm install "${DATABASE_NAME}" oci://registry-1.docker.io/bitnamicharts/mariadb
+									helm install "${DATABASE_NAME}" oci://registry-1.docker.io/bitnamicharts/mariadb --wait --timeout 10m
 									kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+								fi
+
+								# Wait for MariaDB pod to be ready
+								echo "Waiting for MariaDB pod to be ready..."
+								DB_POD_LABEL="app.kubernetes.io/instance=${DATABASE_NAME}"
+
+								# Wait up to 5 minutes for the pod to be ready
+								for i in {1..60}; do
+									READY=$(kubectl get pods -l "${DB_POD_LABEL}" -o jsonpath="{.items[0].status.containerStatuses[0].ready}" 2>/dev/null)
+									if [[ "$READY" == "true" ]]; then
+										echo "MariaDB pod is ready."
+										break
+									fi
+									echo "Waiting for MariaDB... ($i/60)"
+									sleep 10
+								done
+
+								if [[ "$READY" != "true" ]]; then
+									echo "MariaDB did not become ready in time. Exiting."
+									exit 1
 								fi
 								
 								cd deploy

@@ -1,44 +1,23 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: db-initializer
+ name: db-initializer
 spec:
-  template:
-    spec:
-      initContainers:
-        - name: wait-for-mariadb
-          image: bitnami/mariadb:latest
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting for MariaDB to be ready..."
-              until mysqladmin ping -h "${DATABASE_NAME}" --silent; do
-                echo "MariaDB not ready, waiting..."
-                sleep 5
-              done
-              echo "MariaDB is ready."
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ${DATABASE_NAME}
-                  key: mariadb-root-password
-
-      containers:
-        - name: db-init-job
-          image: ${IMAGE_NAME}:${IMAGE_TAG}
-          imagePullPolicy: "Always"
-          env:
-            - name: DBHOST
-              value: "${DATABASE_NAME}"
-            - name: DBUSER
-              value: "root"
-            - name: DBPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ${DATABASE_NAME}
-                  key: mariadb-root-password
-
-      restartPolicy: Never
-  backoffLimit: 4
+ template:
+   spec:
+     containers:
+     - image: ${IMAGE_NAME}:${IMAGE_TAG}
+       name: db-init-job
+       imagePullPolicy: "Always"
+       env:
+       - name: DBHOST
+         value: "${DATABASE_NAME}"
+       - name: DBUSER
+         value: "root"
+       - name: DBPASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: ${DATABASE_NAME}
+             key: mariadb-root-password
+     restartPolicy: Never
+ backoffLimit: 4
