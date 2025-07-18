@@ -109,7 +109,7 @@ pipeline {
 								DB_POD_LABEL="app.kubernetes.io/instance=${DATABASE_NAME}"
 
 								# Wait up to 5 minutes for the pod to be ready
-								for i in {1..60}; do
+								for i in $(seq 1 60); do
 									READY=$(kubectl get pods -l "${DB_POD_LABEL}" -o jsonpath="{.items[0].status.containerStatuses[0].ready}" 2>/dev/null)
 									if [[ "$READY" == "true" ]]; then
 										echo "MariaDB pod is ready."
