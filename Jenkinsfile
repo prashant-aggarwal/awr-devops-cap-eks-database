@@ -158,7 +158,7 @@ pipeline {
 								kubectl get pods
 							'''
 						} catch (exception) {
-							error("Deployment failed: ${e}")
+							error("Deployment failed: ${exception}")
 						}
 					}
                 }
