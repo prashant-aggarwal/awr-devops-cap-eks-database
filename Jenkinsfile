@@ -89,10 +89,10 @@ pipeline {
 							docker login --username AWS --password-stdin ${IMAGE_REGISTRY}
 
 							echo "Building Docker image..."
-							docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+							docker build -t ${IMAGE_NAME_DB}:${IMAGE_TAG} .
 
 							echo "Tagging image for ECR..."
-							docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
+							docker tag ${IMAGE_NAME_DB}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
 
 							echo "Pushing image to ECR..."
 							docker push ${IMAGE_REPO}:${IMAGE_TAG}
