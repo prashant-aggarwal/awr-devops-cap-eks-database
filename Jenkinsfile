@@ -13,7 +13,7 @@ pipeline {
 		stage('Display environment variables') {
             steps {
                 script {
-                    echo "Using config:"
+                    echo "  Using config:"
                     echo "  AWS_REGION:   ${env.AWS_REGION}"
                     echo "  CLUSTER_NAME: ${env.CLUSTER_NAME}"
                     echo "  ROLE_ARN:     ${env.ROLE_ARN}"
