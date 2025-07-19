@@ -4,10 +4,27 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
-    }
+		IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME_DB}"
+	}
 
 	// Multistage pipeline
     stages {
+		// Stage 0 - Display environment variables
+		stage('Display environment variables') {
+            steps {
+                script {
+                    echo "Using config:"
+                    echo "  AWS_REGION:   ${env.AWS_REGION}"
+                    echo "  CLUSTER_NAME: ${env.CLUSTER_NAME}"
+                    echo "  ROLE_ARN:     ${env.ROLE_ARN}"
+                    echo "  IMAGE_NAME_DB:   ${env.IMAGE_NAME_DB}"
+                    echo "  IMAGE_TAG:    ${env.IMAGE_TAG}"
+                    echo "  IMAGE_REGISTRY: ${env.IMAGE_REGISTRY}"
+                    echo "  IMAGE_REPO:   ${env.IMAGE_REPO}"
+                }
+            }
+        }
+
 		// Stage 1 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
@@ -141,8 +158,7 @@ pipeline {
 								kubectl get pods
 							'''
 						} catch (exception) {
-							echo "❌ Failed to deploy database on EKS cluster: ${exception}"
-							error("Halting pipeline due to database deployment failure.")
+							error("Deployment failed: ${e}")
 						}
 					}
                 }
@@ -154,6 +170,12 @@ pipeline {
 	post {
         always {
             cleanWs()
+        }
+		success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
