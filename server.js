@@ -14,10 +14,10 @@ const create_table_sql = `CREATE TABLE events(
     PRIMARY KEY ( id ));`
 
 const add_record_sql = `INSERT INTO events (title, event_time, description, location) 
-VALUES ('Infrastructure Bootcamp', 'April 28 - May 1 between 9:00 a.m. and 5:00p.m. Central Time', 
+VALUES ('Infrastructure Bootcamp', 'April 28 - May 1 between 9:00a.m. and 5:00p.m. Central Time', 
 'Packer, Terraform, Hashicorp, IaC', 'Zoom Meeting'),
-('Kubernetes Bootcamp', 'May 19 - May 22 between 9:00 a.m. and 5:00p.m. Central Time', 
-'Kubernetes, AWS Elastic Kubernetes Services', 'Zoom Meeting');`
+('Kubernetes Bootcamp', 'May 19 - May 22 between 9:00a.m. and 5:00p.m. Central Time', 
+'Kubernetes, AWS Elastic Kubernetes Service', 'Zoom Meeting');`
 
 function init_database() {
     const HOST = process.env.DBHOST ? process.env.DBHOST : "127.0.0.1";
