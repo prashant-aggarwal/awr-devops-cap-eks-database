@@ -9,15 +9,15 @@ const create_table_sql = `CREATE TABLE events(
     event_time VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     location VARCHAR(255) NOT NULL,
-    likes INT DEFAULT 0,
+    likes INT DEFAULT 10,
     datetime_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ( id ));`
 
 const add_record_sql = `INSERT INTO events (title, event_time, description, location) 
-VALUES ('Company Pet Show (DB)', 'November 6 at Noon', 
-'Super-fun with furry friends!', 'Reston Dog Park'),
-('Company Picnic (DB)', 'July 4th at 10:00AM', 
-'Come for free food and drinks.', 'Central Park');`
+VALUES ('Infrastructure Bootcamp', 'April 28 - May 1 between 9:00 a.m. and 5:00p.m. Central Time', 
+'Packer, Terraform, Hashicorp, IaC', 'Zoom Meeting'),
+('Kubernetes Bootcamp', 'May 19 - May 22 between 9:00 a.m. and 5:00p.m. Central Time', 
+'Kubernetes, AWS Elastic Kubernetes Services', 'Zoom Meeting');`
 
 function init_database() {
     const HOST = process.env.DBHOST ? process.env.DBHOST : "127.0.0.1";
